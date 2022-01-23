@@ -1,0 +1,32 @@
+---
+title: "Assignment_01"
+author: "Fatima Arshad"
+date: "1/23/2022"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+```{r include=FALSE}
+
+rm(list=ls())
+# Import libraries
+
+```
+
+
+
+```{r}
+df <- read_csv("https://osf.io/4ay9x/download")
+df <- df %>% filter(occ2012==0800)
+```
+
+
+```{r}
+```
+
+
