@@ -15,6 +15,20 @@ knitr::opts_chunk$set(echo = TRUE)
 
 rm(list=ls())
 # Import libraries
+library(tidyverse)
+library(haven)
+library(data.table)
+library(rms)
+library(lspline)
+library(huxtable)
+library(modelsummary)
+library(pscl)
+library(esquisse)
+library(ggplot2)
+library(cowplot)
+library(boot)
+library(estimatr)
+library(stargazer)
 
 ```
 
@@ -25,8 +39,15 @@ df <- read_csv("https://osf.io/4ay9x/download")
 df <- df %>% filter(occ2012==0800)
 ```
 
-
+### Define the target variable i.e. earnings per hour
 ```{r}
+# define wage and gender variables
+df <- df %>% 
+  mutate(w=earnwke/uhours) %>%
+  mutate(female = as.numeric(sex==2)) %>%
+  mutate(male = as.numeric(sex==1)) %>% 
+  mutate(lnw= log(w)) 
+#df<-data_all %>%mutate(female=as.numeric(sex==2)) %>%mutate(w=earnwke/uhours) %>%mutate(lnw=log(w)) %>%mutate(agesq=age^2)
 ```
 
 
