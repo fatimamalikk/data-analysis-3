@@ -89,6 +89,7 @@ v5 <- ggplot( data = df, aes( x = marital) )  +
   labs( x = NULL, y = NULL, title = 'Distribution of \n Marital Status') +
   theme( plot.title = element_text(hjust = 0.5 ) )
 
+################################################
 
 #Filter marital: 2, 3, 4, 6
 df <- filter( df, !marital %in%  c(2, 3, 4, 6))
@@ -136,7 +137,84 @@ log2 <- ggplot(data=df, aes(x=lnw)) +
   labs(x = "ln(Hourly Wages)", y = NULL)
   theme_bw() 
 
+##############################################
 
+# Lowess with observations log earnings per Hour and Age
+lowess1 <- ggplot(data = df, aes(x=age, y=lnw)) +
+  geom_point( color = 'deepskyblue3', size = 0.7,  shape = 16, alpha = 0.8, show.legend=F, na.rm = TRUE) + 
+  geom_smooth(method="loess", se=F, colour='darkblue', size=1, span=0.9) +
+  theme_bw() +
+  expand_limits(x = 0.01, y = 0.01) +
+  scale_x_continuous(expand = c(0.01,0.01),limits = c(16,64), breaks = seq(0,64, 10)) +
+  scale_y_continuous(expand = c(0.01,0.01),limits = c(-4,7), breaks = seq(-4,7, 1)) +
+  labs( x = "Age", y = "Log Earnings per Hour", title = 'Lowess with Observations for earnings per hour and age') +
+  theme( plot.title = element_text(hjust = 0.5 ) )
+
+# Lowess vs. quadratic Age
+lowess2 <- ggplot(data = df, aes(x=age,y=lnw)) +
+  geom_point( aes( y = lnw ) , color = 'deepskyblue3', size = 0.7,  shape = 16, alpha = 0.8, show.legend=F, na.rm = TRUE) + 
+  geom_smooth( aes(colour='darkblue'), method="lm", formula = y ~ poly(x,2) , se=F, size=1) +
+  geom_smooth( aes(colour='brown'), method="loess", formula = y ~ x,se=F, size=1) +
+  labs(x = "Age",y = "Log Earnings per Hour", title = 'Lowess with Observations for quadratic age') +
+  scale_color_manual(name="", values=c('brown','darkblue'),labels=c("Lowess in Earnings","Quadratic in Earnings")) +
+  theme_bw() +
+  scale_x_continuous(limits = c(16,64), breaks = seq(16,64, 10)) +
+  scale_y_continuous(limits = c(-4,7), breaks = seq(-4,7, 1)) +
+  theme(legend.position = c(0.5,0.3),
+        legend.direction = "horizontal",
+        legend.background = element_blank(),
+        legend.box.background = element_rect(color = "white"),
+        plot.title = element_text(hjust = 0.5))
+
+# Lowess with observations for Earnings per Hour and Number of Children
+lowess4 <- ggplot(data = df, aes(x=ownchild, y=lnw)) +
+  geom_point( color = 'deepskyblue3', size = 1,  shape = 16, alpha = 0.8, show.legend=F, na.rm = TRUE) + 
+  geom_smooth(method="loess", se=F, colour='darkblue', size=1, span=0.9) +
+  theme_bw() +
+  expand_limits(x = 0.01, y = 0.01) +
+  scale_x_continuous(expand = c(0.01,0.01),limits = c(0,6), breaks = seq(0,6, 1)) +
+  scale_y_continuous(expand = c(0.01,0.01),limits = c(-4,7), breaks = seq(-4,7, 1)) +
+  labs( x = "Number of Children", y = "Log Earnings per Hour", title = 'Lowess with Observations for Earnings per Hour and Number of Children') +
+  theme( plot.title = element_text(hjust = 0.5 ) )
+
+# Lowess vs. quadratic number of children
+lowess5 <- ggplot(data = df, aes(x=ownchild,y=lnw)) +
+  geom_point( aes( y = lnw ) , color = 'deepskyblue3', size = 1,  shape = 16, alpha = 0.8, show.legend=F, na.rm = TRUE) + 
+  geom_smooth( aes(colour='darkblue'), method="lm", formula = y ~ poly(x,2) , se=F, size=1) +
+  geom_smooth( aes(colour='brown'), method="loess", formula = y ~ x,se=F, size=1) +
+  labs(x = "Number of Children",y = "Log Earnings per Hour", title = 'Lowess with Observations') +
+  scale_color_manual(name="", values=c('brown','darkblue'),labels=c("Lowess in Earnings","Quadratic in Earnings")) +
+  theme_bw() +
+  scale_x_continuous(limits = c(0,6), breaks = seq(0,6, 1)) +
+  scale_y_continuous(limits = c(-4,7), breaks = seq(-4,7, 1)) +
+  theme(legend.position = c(0.5,0.3),
+        legend.direction = "horizontal",
+        legend.background = element_blank(),
+        legend.box.background = element_rect(color = "white"),
+        plot.title = element_text(hjust = 0.5))
+
+################################################################################
+
+# Define linear regression models
+model1 <- as.formula(lnw ~ age + agesq)
+model2 <- as.formula(lnw ~ age + agesq + female)
+model3 <- as.formula(lnw ~ age + agesq + female + 
+                       Higher_Than_Bachelor + College + High_School + 
+                       ownchild + ownchildsq)
+model4 <- as.formula(lnw ~ age + agesq + female +
+                       Higher_Than_Bachelor + College + High_School +
+                       ownchild + ownchildsq + Married + 
+                       Divorced + Married*age + 
+                       Married*Higher_Than_Bachelor + Married*female )
+
+#Running OLS regressions with models
+reg1 <- feols(model1, data=df, vcov = 'hetero')
+reg2 <- feols(model2, data=df, vcov = 'hetero')
+reg3 <- feols(model3, data=df, vcov = 'hetero')
+reg4 <- feols(model4, data=df, vcov = 'hetero')
+
+
+#################################################################################
 
 ```
 
