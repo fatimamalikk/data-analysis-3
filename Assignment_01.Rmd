@@ -55,9 +55,39 @@ sum(is.na(df))
 
 # Define variables
 
-#Adding hourly wages
+# Adding hourly wages
 df$w <- df$earnwke/df$uhours
 
+# Explore predictor variables
+v1 <- ggplot( data = df, aes( x = as.factor(sex)) )  +
+  geom_bar(aes(y = (..count..)/sum(..count..)), color='dodgerblue4',fill='dodgerblue3', alpha=0.5) +
+  theme_bw() +
+  labs( x = NULL, y = NULL, title = 'Distribution of Sex') +
+  theme( plot.title = element_text(hjust = 0.5 ) )
+
+v2 <- ggplot( data = final_data, aes( x = age) )  +
+  geom_bar(aes(y = (..count..)/sum(..count..)), color='dodgerblue4',fill='dodgerblue3', alpha=0.5) +
+  theme_bw() +
+  labs( x = NULL, y = NULL, title = 'Distribution of Age') +
+  theme( plot.title = element_text(hjust = 0.5 ) )
+
+v3 <- ggplot( data = df, aes( x = grade92) )  +
+  geom_bar(aes(y = (..count..)/sum(..count..)), color='dodgerblue4',fill='dodgerblue3', alpha=0.5) +
+  theme_bw() +
+  labs( x = NULL, y = NULL, title = 'Distribution of \n Education Level') +
+  theme( plot.title = element_text(hjust = 0.5 ) )
+
+v4 <- ggplot( data = df, aes( x = ownchild) )  +
+  geom_bar(aes(y = (..count..)/sum(..count..)), color='dodgerblue4',fill='dodgerblue3', alpha=0.5) +
+  theme_bw() +
+  labs( x = NULL, y = NULL, title = 'Distribution of \n Having Children') +
+  theme( plot.title = element_text(hjust = 0.5 ) )
+
+v6 <- ggplot( data = df, aes( x = marital) )  +
+  geom_bar(aes(y = (..count..)/sum(..count..)), color='dodgerblue4',fill='dodgerblue3', alpha=0.5) +
+  theme_bw() +
+  labs( x = NULL, y = NULL, title = 'Distribution of \n Marital Status') +
+  theme( plot.title = element_text(hjust = 0.5 ) )
 
 ```
 
@@ -66,9 +96,6 @@ df$w <- df$earnwke/df$uhours
 ```
 
 ```{r}
-
-m1 <- lm_robust(w ~ female, data = df, se_type = "HC1")
-summary(m1)
 
 
 ```
