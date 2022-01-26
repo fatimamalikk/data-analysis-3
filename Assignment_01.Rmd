@@ -23,7 +23,7 @@ library(kableExtra)
 
 ## R Markdown
 
-```{r include=FALSE}
+```{r, echo=FALSE, warning=FALSE, message=FALSE, results='hide'}
 df <- read_csv("https://osf.io/4ay9x/download")
 
 # Choosing variables of interest
@@ -37,18 +37,14 @@ df <- df %>% filter(occ2012 == 1005 | occ2012 == 1006 | occ2012 == 1007 |
 
 ```
 
-
-
-```{r}
 ##### Introduction:
-This report uses the **Accountants and auditors** occupation groupfrom the [cps-earnings dataset](https://osf.io/g8p9j/) to build four predictive models using linear regression for earnings per hour. The BIC, RMSE, and five-fold cross-validation for cross-validated RMSE is calculated to discuss the relationship between model complexity and performance.
+This report uses the **computer and mathematical** occupation group from the [cps-earnings dataset](https://osf.io/g8p9j/) to build four predictive models using linear regression for earnings per hour. The BIC, RMSE, and five-fold cross-validation for cross-validated RMSE is calculated to discuss the relationship between model complexity and performance.
 
-##### Data Cleaning, Exploration, and Factoring:
-Age is modeled as its squared non-linearity for a regression with log hourly wage as the dependent variable. The following subset of predictor variables are considered for the purpose of this analysis: education level (Bachelor degree as base), age (squared), sex (male as base), number of children (squared and cubic), and marital status (not married as base). *Refer to Appendix for further details.* 
-```
+##### Exploratory Data Analysis:
+Data is cleaned and factored before modelling. Age is modeled as its squared non-linearity for a regression with log hourly wage as the dependent variable. The following subset of predictor variables are considered for the purpose of this analysis: education level (Bachelor degree as base), age (squared), sex (male as base), number of children (squared and cubic), and marital status (not married as base). *Refer to Appendix for further details.* 
 
 
-```{r}
+```{r, echo=FALSE, warning=FALSE, message=FALSE, results='hide'}
 #Checking for missing values
 df <- na.omit(df)
 sum(is.na(df))
@@ -147,7 +143,7 @@ lowess1 <- ggplot(data = df, aes(x=age, y=lnw)) +
   expand_limits(x = 0.01, y = 0.01) +
   scale_x_continuous(expand = c(0.01,0.01),limits = c(16,64), breaks = seq(0,64, 10)) +
   scale_y_continuous(expand = c(0.01,0.01),limits = c(-4,7), breaks = seq(-4,7, 1)) +
-  labs( x = "Age", y = "Log Earnings per Hour", title = 'Lowess with Observations for earnings per hour and age') +
+  labs( x = "Age", y = "Log Earnings per Hour", title = 'Lowess-earnings per hour and age') +
   theme( plot.title = element_text(hjust = 0.5 ) )
 
 # Lowess vs. quadratic Age
@@ -155,7 +151,7 @@ lowess2 <- ggplot(data = df, aes(x=age,y=lnw)) +
   geom_point( aes( y = lnw ) , color = 'deepskyblue3', size = 0.7,  shape = 16, alpha = 0.8, show.legend=F, na.rm = TRUE) + 
   geom_smooth( aes(colour='darkblue'), method="lm", formula = y ~ poly(x,2) , se=F, size=1) +
   geom_smooth( aes(colour='brown'), method="loess", formula = y ~ x,se=F, size=1) +
-  labs(x = "Age",y = "Log Earnings per Hour", title = 'Lowess with Observations for quadratic age') +
+  labs(x = "Age",y = "Log Earnings per Hour", title = 'Lowess-quadratic age') +
   scale_color_manual(name="", values=c('brown','darkblue'),labels=c("Lowess in Earnings","Quadratic in Earnings")) +
   theme_bw() +
   scale_x_continuous(limits = c(16,64), breaks = seq(16,64, 10)) +
@@ -174,7 +170,7 @@ lowess4 <- ggplot(data = df, aes(x=ownchild, y=lnw)) +
   expand_limits(x = 0.01, y = 0.01) +
   scale_x_continuous(expand = c(0.01,0.01),limits = c(0,6), breaks = seq(0,6, 1)) +
   scale_y_continuous(expand = c(0.01,0.01),limits = c(-4,7), breaks = seq(-4,7, 1)) +
-  labs( x = "Number of Children", y = "Log Earnings per Hour", title = 'Lowess with Observations for Earnings per Hour and Number of Children') +
+  labs( x = "Number of Children", y = "Log Earnings per Hour", title = 'Lowess-Earnings per Hour and Number of Children') +
   theme( plot.title = element_text(hjust = 0.5 ) )
 
 # Lowess vs. quadratic number of children
@@ -182,7 +178,7 @@ lowess5 <- ggplot(data = df, aes(x=ownchild,y=lnw)) +
   geom_point( aes( y = lnw ) , color = 'deepskyblue3', size = 1,  shape = 16, alpha = 0.8, show.legend=F, na.rm = TRUE) + 
   geom_smooth( aes(colour='darkblue'), method="lm", formula = y ~ poly(x,2) , se=F, size=1) +
   geom_smooth( aes(colour='brown'), method="loess", formula = y ~ x,se=F, size=1) +
-  labs(x = "Number of Children",y = "Log Earnings per Hour", title = 'Lowess with Observations') +
+  labs(x = "Number of Children",y = "Log Earnings per Hour", title = 'Lowess-quadratic children') +
   scale_color_manual(name="", values=c('brown','darkblue'),labels=c("Lowess in Earnings","Quadratic in Earnings")) +
   theme_bw() +
   scale_x_continuous(limits = c(0,6), breaks = seq(0,6, 1)) +
@@ -198,6 +194,7 @@ lowess5 <- ggplot(data = df, aes(x=ownchild,y=lnw)) +
 # Define linear regression models
 model1 <- as.formula(lnw ~ age + agesq)
 model2 <- as.formula(lnw ~ age + agesq + female)
+
 model3 <- as.formula(lnw ~ age + agesq + female + 
                        Higher_Than_Bachelor + College + High_School + 
                        ownchild + ownchildsq)
@@ -214,17 +211,173 @@ reg3 <- feols(model3, data=df, vcov = 'hetero')
 reg4 <- feols(model4, data=df, vcov = 'hetero')
 
 
+
 #################################################################################
+# Evaluate models with RMSE and BIC - full sample
+fitstat_register("k", function(x){length( x$coefficients ) - 1}, "No. Variables")
+
+#Cross-validated RMSE
+k <- 5
+set.seed(94941)
+cv1 <- train(model1, df, method = "lm", trControl = trainControl(method = "cv", number = k))
+set.seed(94941)
+cv2 <- train(model2, df, method = "lm", trControl = trainControl(method = "cv", number = k))
+set.seed(94941)
+cv3 <- train(model3, df, method = "lm", trControl = trainControl(method = "cv", number = k), na.action = "na.omit")
+set.seed(94941)
+cv4 <- train(model4, df, method = "lm", trControl = trainControl(method = "cv", number = k), na.action = "na.omit")
+
+#Calculating RMSE and average RMSE for each fold
+cv <- c("cv1", "cv2", "cv3", "cv4")
+rmse_cv <- c()
+
+for(i in 1:length(cv)){
+  rmse_cv[i] <- sqrt((get(cv[i])$resample[[1]][1]^2 +
+                        get(cv[i])$resample[[1]][2]^2 +
+                        get(cv[i])$resample[[1]][3]^2 +
+                        get(cv[i])$resample[[1]][4]^2)/5)
+}
+
+
+# Results
+cv_mat <- data.frame(rbind(cv1$resample[4], "Average"),
+                     rbind(cv1$resample[1], rmse_cv[1]),
+                     rbind(cv2$resample[1], rmse_cv[2]),
+                     rbind(cv3$resample[1], rmse_cv[3]),
+                     rbind(cv4$resample[1], rmse_cv[4])
+)
+
+colnames(cv_mat)<-c("Resample","Model1", "Model2", "Model3", "Model4")
+
+
+##################################################################################
+
+#Model complexity and RMSE performance
+m_comp <- c()
+models <- c("reg1", "reg2", "reg3", "reg4")
+for( i in 1 : length(cv) ){
+  m_comp[ i ] <- length( get( models[i] )$coefficient  - 1 ) 
+}
+
+m_comp <- tibble( model = models , 
+                  complexity = m_comp,
+                  RMSE = rmse_cv )
+
+model_graph <- ggplot( m_comp , aes( x = complexity , y = RMSE ) ) +
+  geom_line(color='deepskyblue3',size=1) +
+  geom_point(color='darkblue',size=3) +
+  labs(x='Number of Explanatory Variables',y='Averaged RMSE on Test Samples',
+       title='Model Complexity and Prediction Performance') +
+  theme_bw() +
+  theme( plot.title = element_text(hjust = 0.5 ) )
 
 ```
 
-```{r}
+##### Models:
+The following four models of varying complexity are defined in this study with Model 1 as the simplest and Model 4 with the highest complexity. 
+1. **Model 1:** Age and age squared.
+2. **Model 2:** Age, age squared, and sex.
+3. **Model 3:** Age, age squared, sex, education level, number of children, and number of children squared.
+4. **Model 4:** Age, age squared, sex, education level, number of children, number of children squared, married, divorced, interaction term of married and age, interaction term of married and degree higher than bachelors, and interaction term of married and sex.
 
+Model evaluation with the full sample shows that Model 4 is the best according to RMSE and Model 3 is the best according to BIC. Refer to Appendix for further details of each model.
+
+```{r, echo=FALSE, fig.width=2.5, fig.height = 2.5, fig.align="center"}
+model_graph <- ggplot( m_comp , aes( x = complexity , y = RMSE ) ) +
+  geom_line(color='deepskyblue3',size=1) +
+  geom_point(color='darkblue',size=3) +
+  labs(x='Number of \n Explanatory Variables',y='Averaged RMSE on \n Test Samples',
+       title='Prediction Performance \n and Model Complexity') +
+  theme_bw() +
+  theme( plot.title = element_text(hjust = 0.5, size=10) ) 
+model_graph
 ```
 
-```{r}
+Model 4 performs the best with 5-fold cross-validated RMSE. The graph above suggest that increase in model complexity (by adding more predictor variables) improves performance by lowering the averaged RMSE.However, there is no significant change in model performance by adding more predictor variables and leads to the problem of over-fitting. In conclusion, model selection depends upon finding the best fit while avoiding over-fitting and thus striving for high external validity.
 
+\newpage
 
+## Appendix
+*Figure 1: Data Filtering and Cleaning*
+The following variables were filtered due to less number of observations:
+
+1. **Marital Status:** 2 (married AF spouse present), 3 (married spouse absent or separated), 4 (widowed), and 6 (separated).
+2. **Education (grade92):** Higher education levels are preserved in the data to determine whether it leads to higher wages and following is removed i.e. 32 (1-4th grade), 33 (5th or 6th), 34 (7th or 8th), 35 (9th), 36 (10th), 37 (11th), and 38 (12th grade no diploma). 
+
+*Figure 2: Skewed Distribution of Hourly Wage*
+```{r, echo=FALSE, fig.width=3, fig.height = 3, fig.align="center"}
+log1
+```
+
+*Figure 3: Normal Distribution of Log Hourly Wage*
+```{r, echo=FALSE, fig.width=3, fig.height = 3, fig.align="center"}
+log2
+```
+\newpage
+
+*Figure 4: Exploratory Graphs of Predictor Variables*
+```{r, echo=FALSE, fig.align="center"}
+grid.arrange(v1, v2, v3, 
+             v4, v5, ncol=3)
+```
+Choice of predictor variables:
+
+1. Education Level: Determine if a higher education level in the IT industry leads to more wages.
+2. Age: Determine the nature of relationship between age and wages i.e. negative or positive.
+3. Sex: Determine the relationship between gender and wages and look out for gender based discrimination.
+4. Number of Children: Determine the relationship between number of children and wages because having children increases responsibility on individual.
+5. Marital Status: Determine the relationship between marriage and wages especially for females.
+
+\newpage
+
+*Figure 5: Lowess with Observations for Earnings per Hour and Age*
+```{r, echo=FALSE, fig.width=4, fig.height = 7, fig.align="center", warning=FALSE}
+grid.arrange(lowess1, lowess2, ncol=1)
+```
+
+\newpage
+
+*Figure 6: Lowess with Observations for Earnings per Hour and Number of Children*
+```{r, echo=FALSE, fig.width=4, fig.height = 7, fig.align="center", warning=FALSE}
+grid.arrange(lowess4, lowess5, ncol=1)
 ```
 
 
+*Figure 7: Model Comparison with RMSE and BIC for Full Sample*
+```{r, echo=FALSE}
+dict <- c("(Intercept)" = "Intercept",
+                    "age" = "Age",
+                    "agesq" = "Age Squared",
+                    "female" = "Female",
+                    "Higher_Than_Bachelor" = "Higher Than Bachelor",
+                    "College" = "College",
+                    "High_School" = "High School Graduate",
+                    "ownchild" = "Number of Children",
+                    "ownchildsq" = "Number of Children Squared",
+                    "Married" = "Married",
+                    "Divorced" = "Divorced",
+                    "Married x age" = "Age x Married",
+                    "Married x Higher_Than_Bachelor" = "Married x Higher Than Bachelor",
+                    "Married x Female" = "Married x Female"
+                    )
+
+
+kable( etable( reg1, reg2, reg3, reg4,
+               dict = dict,
+               se.below = T,
+               coefstat = 'se',
+               fitstat = c('aic','bic','rmse','r2','n','k'),
+               se.row = F,
+               depvar = F ) , 
+       col.names = c('(Model1)','(Model2)','(Model3)','(Model4)'),
+       "latex", booktabs = TRUE) %>% kable_styling(latex_options = c("striped","scale_down"))
+```
+
+
+\newpage
+
+*Figure 8: Model Comparison for 5-Fold Cross-Validated RMSE*
+```{r, echo=FALSE}
+kable(cv_mat, "latex", booktabs = TRUE ) %>%  kable_styling(latex_options = c("striped", "scale_down"))
+
+```
