@@ -7,47 +7,70 @@ output: pdf_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+
+rm(list=ls())
+
+# Import libraries
+library(tidyverse)
+library(fixest)
+library(caret)
+library(modelsummary)
+library(grid)
+library(ggplot2)
+library(gridExtra)
+library(kableExtra)
 ```
 
 ## R Markdown
 
 ```{r include=FALSE}
-
-rm(list=ls())
-# Import libraries
-library(tidyverse)
-library(haven)
-library(data.table)
-library(rms)
-library(lspline)
-library(huxtable)
-library(modelsummary)
-library(pscl)
-library(esquisse)
-library(ggplot2)
-library(cowplot)
-library(boot)
-library(estimatr)
-library(stargazer)
-
-```
-
-
-
-```{r}
 df <- read_csv("https://osf.io/4ay9x/download")
-df <- df %>% filter(occ2012==0800)
+
+# Choosing variables of interest
+df <- df %>% select(occ2012, earnwke, uhours, grade92, age, sex, ownchild, marital)
+
+#Filter data for computer and mathematical occupations
+df <- df %>% filter(occ2012 == 1005 | occ2012 == 1006 | occ2012 == 1007 |  
+                 occ2012 == 1010 | occ2012 == 1020 | occ2012 == 1030 | 
+                 occ2012 == 1050 | occ2012 == 1060 |occ2012 == 1105 | 
+                 occ2012 == 1106 | occ2012 == 1107)
+
 ```
 
-### Define the target variable i.e. earnings per hour
+
+
 ```{r}
-# define wage and gender variables
-df <- df %>% 
-  mutate(w=earnwke/uhours) %>%
-  mutate(female = as.numeric(sex==2)) %>%
-  mutate(male = as.numeric(sex==1)) %>% 
-  mutate(lnw= log(w)) 
-#df<-data_all %>%mutate(female=as.numeric(sex==2)) %>%mutate(w=earnwke/uhours) %>%mutate(lnw=log(w)) %>%mutate(agesq=age^2)
+##### Introduction:
+This report uses the **Accountants and auditors** occupation groupfrom the [cps-earnings dataset](https://osf.io/g8p9j/) to build four predictive models using linear regression for earnings per hour. The BIC, RMSE, and five-fold cross-validation for cross-validated RMSE is calculated to discuss the relationship between model complexity and performance.
+
+##### Data Cleaning, Exploration, and Factoring:
+Age is modeled as its squared non-linearity for a regression with log hourly wage as the dependent variable. The following subset of predictor variables are considered for the purpose of this analysis: education level (Bachelor degree as base), age (squared), sex (male as base), number of children (squared and cubic), and marital status (not married as base). *Refer to Appendix for further details.* 
+```
+
+
+```{r}
+#Checking for missing values
+df <- na.omit(df)
+sum(is.na(df))
+
+# Define variables
+
+#Adding hourly wages
+df$w <- df$earnwke/df$uhours
+
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+m1 <- lm_robust(w ~ female, data = df, se_type = "HC1")
+summary(m1)
+
+
 ```
 
 
