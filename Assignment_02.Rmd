@@ -1,0 +1,21 @@
+---
+title: "Assignment_02"
+author: "Fatima Arshad"
+date: "2/9/2022"
+output: pdf_document
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+rm(list=ls())
+
+# Import libraries
+library(tidyverse)
+library(fixest)
+library(caret)
+library(modelsummary)
+library(grid)
+library(ggplot2)
+library(gridExtra)
+library(kableExtra)
+```
