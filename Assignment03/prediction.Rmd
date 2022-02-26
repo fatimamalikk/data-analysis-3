@@ -1,9 +1,14 @@
 ---
-title: "ass03_prediction"
+title: "Predicting Fast Growing Firms"
 author: "Fatima Arshad"
 date: "2/25/2022"
 output: html_document
 ---
+
+<style>
+body {
+text-align: justify}
+</style>
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -141,20 +146,20 @@ Missing values in labor average column are replaced by the mean value in a new c
 ```{r, echo=FALSE, fig.align="center"}
 skewed_sales_graph <- ggplot(data=data, aes(x=sales_mil)) +
   geom_histogram(aes(y = (..count..)/sum(..count..)), binwidth = 0.1,
-                 color = "black", fill = "salmon") +
+                 color = "black", fill = "darkcyan") +
   coord_cartesian(xlim = c(0, 5)) +
   labs(x = "sales in million",y = "Percent", title="Skewed distribution of Sales")+
   theme_bw() 
 
 normal_sales_graph <- ggplot(data=data, aes(x=sales_mil_log)) +
   geom_histogram(aes(y = (..count..)/sum(..count..)), binwidth = 0.25,
-                 color = "black", fill = "salmon") +
+                 color = "black", fill = "darkcyan") +
   labs(x = "log sales in million",y = "Percent", title="Normal distribution of Sales")+
   theme_bw()
 
 ```
 
-```{r, echo=FALSE, fig.align="center"}
+```{r, echo=FALSE, warning=FALSE, message=FALSE, results='hide', fig.align="center", fig.width=4, fig.height = 4}
 library(gridExtra)
 grid.arrange(skewed_sales_graph, normal_sales_graph, ncol=2)
 ```
@@ -480,7 +485,7 @@ roc_ggplot_02<- createRocPlot(roc_obj_holdout, "best_no_loss_roc_plot_holdout")
 
 ```
 
-```{r, echo=FALSE, warning=FALSE, message=FALSE, results='hide', fig.align="center"}
+```{r, echo=FALSE, warning=FALSE, message=FALSE, results='hide', fig.align="center", fig.width=4, fig.height = 4}
 grid.arrange(roc_ggplot_01, roc_ggplot_02, ncol=2)
 ```
 ## Loss Function
@@ -504,7 +509,7 @@ summary(class_prediction)
 ```
 
 
-```{r, echo=FALSE, warning=FALSE, message=FALSE, results='hide', fig.align="center"}
+```{r, echo=FALSE, warning=FALSE, message=FALSE, results='hide', fig.align="center", include=FALSE}
 # confusion matrix: summarize different type of errors and successfully predicted cases
 # positive = "yes": explicitly specify the positive case
 
@@ -688,11 +693,11 @@ loss_plot_02_optimal <- createRocPlotWithOptimal(roc_obj, best_treshold, "rf_p_r
 ```
 
 
-```{r, echo=FALSE, warning=FALSE, message=FALSE, results='hide', fig.align="center"}
+```{r, echo=FALSE, warning=FALSE, message=FALSE, results='hide', fig.align="center", fig.width=4, fig.height = 4}
 grid.arrange(loss_plot_01, loss_plot_02_optimal, ncol=2)
 ```
 
-```{r, echo=FALSE, warning=FALSE, message=FALSE, results='hide', fig.align="center"}
+```{r, echo=FALSE, warning=FALSE, message=FALSE, results='hide', include=FALSE}
 
 # Take model to holdout and estimate RMSE, AUC and expected loss ------------------------------------
 
@@ -745,7 +750,7 @@ kbl(cm_rf_perc) %>%
 ## Calibration Curve
 The calibration curve illustrated below is used to evaluate how calibrated our classifier is i.e., how the probabilities of predicting each company as fast-growing or not differ. The x-axis represents the average predicted probability and the y-axis is the ratio of positives (the proportion of positive predictions). 
 
-```{r, echo=FALSE, warning=FALSE, message=FALSE, results='hide', fig.align="center"}
+```{r, echo=FALSE, warning=FALSE, message=FALSE, results='hide', fig.align="center", fig.width=4, fig.height = 4}
 
 
 # Save output --------------------------------------------------------
