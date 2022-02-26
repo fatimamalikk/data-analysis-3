@@ -159,7 +159,7 @@ normal_sales_graph <- ggplot(data=data, aes(x=sales_mil_log)) +
 
 ```
 
-```{r, echo=FALSE, warning=FALSE, message=FALSE, results='hide', fig.align="center", fig.width=4, fig.height = 4}
+```{r, echo=FALSE, warning=FALSE, message=FALSE, results='hide', fig.align="center", fig.height = 4}
 library(gridExtra)
 grid.arrange(skewed_sales_graph, normal_sales_graph, ncol=2)
 ```
@@ -392,7 +392,7 @@ rf_summary <- data.frame("CV RMSE" = unlist(CV_RMSE),
 
 ```
 
-In order to determine the bes model among the 5, we run the models and look at the AUC and the average RMSE of the 5-fold cross validation. The two tables below shows the average 5-fold cross-validated RMSE for the 5 logit models, the Lasso model and the Random Forest Model.
+In order to determine the best model among the 5, we run the models and look at the AUC and the average RMSE of the 5-fold cross validation. The two tables below shows the average 5-fold cross-validated RMSE for the 5 logit models, the Lasso model and the Random Forest Model.
 
 ### Logit Models
 Based on these results, the best model of all was model number 2 with average 5-fold cross-validated RMSE of 0.3005829. Similarly, the highest AUC among the 5 logit models is for model 4 i.e. 0.7155053. Even though model 4 gives more area under the curve, it is still only slightly higher than the rest of the models. The AUC for model 5 is 0.7018275 making it the second best based on AUC, however it is approximately equal to that of Model 2 i.e. 0.7010004. Therefore since there is not much difference in the area under the curve we will look at the complexity of each model for decision making. The complexity is determined by the number of variables input to the model. Among the three contestents i.e. Model 2, 4 and 5 we will select Model 2 as our best model. This is because it has only 17 predictors in total, which are quite less than the remaining models. In conclusion, based on model complexity, AUC, and lowest RMSE, we will select **Model 2** as the best one.
@@ -485,7 +485,7 @@ roc_ggplot_02<- createRocPlot(roc_obj_holdout, "best_no_loss_roc_plot_holdout")
 
 ```
 
-```{r, echo=FALSE, warning=FALSE, message=FALSE, results='hide', fig.align="center", fig.width=4, fig.height = 4}
+```{r, echo=FALSE, warning=FALSE, message=FALSE, results='hide', fig.align="center", fig.height = 4}
 grid.arrange(roc_ggplot_01, roc_ggplot_02, ncol=2)
 ```
 ## Loss Function
@@ -693,7 +693,7 @@ loss_plot_02_optimal <- createRocPlotWithOptimal(roc_obj, best_treshold, "rf_p_r
 ```
 
 
-```{r, echo=FALSE, warning=FALSE, message=FALSE, results='hide', fig.align="center", fig.width=4, fig.height = 4}
+```{r, echo=FALSE, warning=FALSE, message=FALSE, results='hide', fig.align="center", fig.height = 4}
 grid.arrange(loss_plot_01, loss_plot_02_optimal, ncol=2)
 ```
 
