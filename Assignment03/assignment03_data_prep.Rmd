@@ -47,7 +47,7 @@ library(lubridate)
 library(RColorBrewer)
 ```
 
-```{r}
+```{r include=FALSE}
 # load functions
 source(paste0(dir, "Assignment03/theme_bg.R"))
 source(paste0(dir,"Assignment03/da_helper_function.R"))
